@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Mapping Tool</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+    <link rel="stylesheet" href="https://bootswatch.com/4/sandstone/bootstrap.min.css">
+    <link rel="stylesheet" href="css/leaflet.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
+    <link rel="stylesheet" href="css/leaflet-sidebar.css">
+    <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="css/leaflet.draw.css">
+    <link rel="stylesheet" href="css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="css/nouislider.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css">
+
+</head>
+
+<body>
+
+
+
+    <!-- Begin page content -->
+
+    <div id="tablePanel">
+        <h1>Table Data</h1>
+        <div id=""></div>
+
+    </div>
+    <div id="sidebar-right" class="sidebar">
+        <!-- Nav tabs -->
+        <div class="sidebar-tabs">
+            <ul role="tablist">
+                <li><a href="#selections" title="Map Data" role="tab"><i class="fa fa-map-marked-alt"></i></a></li>
+            </ul>
+        </div>
+
+        <!-- Tab panes -->
+        <div class="sidebar-content">
+            <div class="sidebar-pane" id="selections">
+                <h1 class="sidebar-header">
+                    Map Data
+                    <span class="sidebar-close"><i class="fa fa-caret-right"></i></span>
+                </h1>
+                <br>
+                <div id="search_results" style="display: flex; flex-direction: column;">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="sidebar" class="sidebar">
+        <!-- Nav tabs -->
+        <div class="sidebar-tabs">
+            <ul role="tablist">
+                <li><a title="Add Your Own Data" role="tab" onclick="addUserData()"><i class="fa fa-plus-circle"></i></a></li>
+                <li><a href="#basemaps" title="Base Maps" role="tab"><i class="fa fa-globe"></i></a></li>
+                <li><a href="#layers" title="Layers" role="tab"><i class="fa fa-map"></i></a></li>
+                <li><a href="#select" title="Data Selection" role="tab"><i class="fa fa-search"></i></a></li>
+                <li><a href="#analysis" title="Analysis" role="tab"><i class="fa fa-compass"></i></a></li>
+                <li><a href="#legend" title="Map Legend" role="tab"><i class="fa fa-clipboard-list"></i></a></li>
+            </ul>
+
+            <ul role="tablist">
+                <li><a href="#settings" title="Your Settings" role="tab"><i class="fa fa-cogs"></i></a></li>
+                <li><a href="#help" title="Help" role="tab"><i class="fa fa-info-circle"></i></a></li>
+            </ul>
+        </div>
+
+        <!-- Tab panes -->
+        <div class="sidebar-content">
+            <div class="sidebar-pane" id="layers">
+                <h1 class="sidebar-header">
+                    Layers
+                    <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+                <br>
+                <ul class="list-group" id="mapLayers">
+                </ul>
+            </div>
+            <div class="sidebar-pane" id="basemaps">
+                <h1 class="sidebar-header">
+                    Base Maps
+                    <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+                <br>
+                <div id="basemapList"></div>
+            </div>
+            <div class="sidebar-pane" id="select">
+                <h1 class="sidebar-header">
+                    Select Data
+                    <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+                <br>
+                <form id="selectionForm" class="form-horizontal">
+                    <div class="form-group form-group-sm">
+                        <div class="col-xs-9">
+                            <label class="col-xs-3 control-label">Selection Layer</label>
+                            <select class="form-control" name="layer" id="layer" onchange="selectionChange()">
+                                <option value="" disabled selected>Select Layer</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="searchFormData">
+                        <p>Select By Draw:</p>
+                        <p>
+                            <button type="button" class="btn btn-outline-dark" name="extent" id="extent" title="Map Extent"><i
+                                    class="fa fa-map"></i></button>
+                            <button type="button" class="btn btn-outline-dark" name="rectangle" id="rectangle" title="Rectangle"><i
+                                    class="fa fa-square"></i></button>
+                            <button type="button" class="btn btn-outline-dark" name="polygon" id="polygon" title="Polygon"><i
+                                    class="fa fa-draw-polygon"></i></button>
+                            <button type="button" class="btn btn-outline-dark" name="circle" id="circle" title="Circle"><i
+                                    class="fa fa-circle"></i></button>
+                        </p>
+                        <p>Select By Criteria:</p>
+                        <div id="criteriaForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <div class="col-xs-9">
+                                        <select class="form-control" name="field-1" id="field-1">
+                                            <option value="" disabled selected>Field</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="form-group">
+                                    <div class="col-xs-9">
+                                        <select class="form-control" name="operator-1" id="operator-1">
+                                            <option>
+                                                <=</option> <option>
+                                                    <</option> <option value="=" selected>=
+                                            </option>
+                                            <option>>=</option>
+                                            <option>></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-xs-9">
+                                        <input type="text" class="form-control" id="inputQuery-1" name="inputQuery-1"
+                                            onkeypress="autoComplete(this)">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group center-block">
+                                <div class="btn-group" role="group" aria-label="Basic example">
+                                    <button type="button" class="btn btn-info" onclick="andAdd()">And</button>
+                                    <button type="button" class="btn btn-info" onclick="orAdd()">Or</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" id="find_submit">
+                            <div class="col-xs-7 col-xs-offset-3">
+                                <button type="button" class="btn btn-success" id="selectionSubmit"><i class="fa fa-search"></i>
+                                    Find Data</button>
+                                <button type="button" class="btn btn-danger" onclick="clearSelectionForm()"><i class="fa fa-trash"></i>
+                                    Clear Form</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="sidebar-pane" id="analysis">
+                <h1 class="sidebar-header">
+                    Analysis
+                    <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+                <br>
+                <h4>What type of analysis?</h4>
+                <form id="analysisForm" class="form-horizontal">
+                    <div class="form-group">
+                        <div class="col-xs-9">
+                            <select class="form-control" name="analysisType" onchange="analysisChange()">
+                                <option value="" disabled selected>Select Analysis</option>
+                                <option value="addNewField">Add New Field</option>
+                                <option value="boundingBox">Bounding Box</option>
+                                <option value="buffer">Buffer</option>
+                                <option value="center">Find Center of Data</option>
+                                <option value="heatMap">Create Heat Map</option>
+                                <!--<option value="hexGrid">Create Hex Grid</option>-->
+                                <option value="squareGrid">Create Square Grid</option>
+                                <option value="triangleGrid">Create Triangle Grid</option>
+                                <option value="countPointsWithinPolygon">Count Points within Polygon</option>
+                                <option value="dissolve">Dissolve</option>
+                                <option value="polygonsCenter">Find Center of Each Polygon</option>
+                                <option value="summarizeNearby">Find Nearby Features</option>
+                                <option value="cluster">Find Point Clusters</option>
+                                <option value="pointsWithinPolygon">Find Points/Polygons Within Polygon</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" id="addFieldForm">
+                        <div class="col-xs-9">
+                            <label class="col-xs-3 control-label">Type of Expression:</label>
+                            <select class="form-control" name="expressionType" onchange="expressionChange()">
+                                <option value="" disabled selected>Select Type of Expression</option>
+                                <option value="add">Add</option>
+                                <option value="subtract">Subtract</option>
+                                <option value="multiply">Multiply</option>
+                                <option value="divide">Divide</option>
+                                <option value="average">Average</option>
+                                <option value="lowest">Lowest Value</option>
+                                <option value="highest">Highest Value</option>
+                                <option value="greater">Greater Than (True/False)</option>
+                                <option value="less">Less Than (True/False)</option>
+                                <option value="greaterEqual">Greater Than or Equal To (True/False)</option>
+                                <option value="LessEqual">Less Than or Equal To (True/False)</option>
+                                <option value="equal">Equal Values (True/False)</option>
+                                <option value="notEqual">Not Equal Values (True/False)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" id="layerForm">
+                        <label class="col-xs-3 control-label">Layer:</label>
+                        <div class="col-xs-9">
+                            <select class="form-control" name="analysisLayer" id="analysisLayer" onchange="layerChange()">
+                                <option value="" disabled selected>Select Layer</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" id="fieldForm">
+                        <label class="col-xs-3 control-label">Layer Fields:</label>
+                        <div class="col-xs-9">
+                            <select class="form-control" name="layerFields" id="layerFields">
+                                <option value="" disabled selected>Select Field</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" id="secondLayerCheckForm">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="secondLayerCheck" onclick="secondLayer(this)">
+                            <label class="form-check-label" for="secondLayerCheck">
+                                Compare Against Another Field
+                            </label>
+                        </div> OR
+                        <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="userValueCheck" onclick="userValue(this)">
+                                <label class="form-check-label" for="userValueCheck">
+                                    Comapre Against Your Own Value
+                                </label>
+                            </div>
+                    </div>
+                    <div class="form-group" id="field2Form">
+                            <label class="col-xs-3 control-label">Comparison Fields:</label>
+                            <div class="col-xs-9">
+                                <select class="form-control" name="layer2Fields" id="layer2Fields">
+                                    <option value="" disabled selected>Select Field</option>
+                                </select>
+                            </div>
+                        </div>
+                    <div class="form-group" id="userValueForm">
+                            <label class="col-xs-3 control-label">Comparison Value</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control" id="comparisonValue" name="comparisonValue" maxlength="28"
+                                    placeholder="Enter Comparison Value...">
+                            </div>
+                        </div>
+                    <div class="form-group" id="pointForm">
+                        <label class="col-xs-3 control-label">Point Layer:</label>
+                        <div class="col-xs-9">
+                            <select class="form-control" name="pointLayer" id="pointLayer">
+                                <option value="" disabled selected>Select Point Layer</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" id="polygonForm">
+                        <label class="col-xs-3 control-label">Polygon Layer:</label>
+                        <div class="col-xs-9">
+                            <select class="form-control" name="polygonLayer" id="polygonLayer">
+                                <option value="" disabled selected>Select Polygon Layer</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" id="bufferForm">
+                        <label class="col-xs-3 control-label">Buffer Distance (Miles)</label>
+                        <div class="col-xs-9">
+                            <input type="text" class="form-control" id="bufferDistance" name="bufferDistance" maxlength="28"
+                                placeholder="Enter Distance...">
+                        </div>
+                    </div>
+                    <div class="form-group" id="gridCheckForm">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="gridCheck" onclick="gridChecked(this)">
+                            <label class="form-check-label" for="gridCheck">
+                                Use Grid
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group" id="gridForm">
+                        <label class="col-xs-3 control-label">Grid Size (Miles)</label>
+                        <div class="col-xs-9">
+                            <input type="text" class="form-control" id="gridSize" name="gridSize" maxlength="28"
+                                placeholder="Enter Size...">
+                        </div>
+                    </div>
+                    <div class="form-group" id="heatForm">
+                        <label class="col-xs-3 control-label">Heat Map Point Size</label>
+                        <div class="col-xs-9">
+                            <input type="text" class="form-control" id="heatSize" name="heatSize" maxlength="3"
+                                placeholder="Enter Size...">
+                        </div>
+                    </div>
+                    <div class="form-group" id="clusterForm">
+                        <label class="col-xs-3 control-label">Number of Clusters</label>
+                        <div class="col-xs-9">
+                            <input type="text" class="form-control" id="clusterAmount" name="clusterAmount" maxlength="3"
+                                placeholder="Enter Number...">
+                        </div>
+                    </div>
+                    <div class="form-group" id="impactForm">
+                        <label class="col-xs-3 control-label">Click the Impact Point Button then a location on the map
+                            to start your search from.</label>
+                        <div class="col-xs-7 col-xs-offset-3">
+                            <button type="button" class="btn btn-success" id="impactPoint"><i class="fa fa-map-marker"></i>
+                                Impact Point</button>
+                        </div>
+                    </div>
+                    <div class="form-group" id="analysis_submit">
+                        <div class="col-xs-7 col-xs-offset-3">
+                            <button type="button" class="btn btn-success" id="analysisSubmit"><i class="fa fa-search"></i>
+                                Perform Analysis</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="sidebar-pane" id="legend">
+                <h1 class="sidebar-header">
+                    Legend
+                    <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+                <br>
+                <div id="legendData">
+                </div>
+
+            </div>
+            <div class="sidebar-pane" id="settings">
+                <h1 class="sidebar-header">
+                    User Settings
+                    <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+                <br>
+                <div class="form-group" id="baseMapForm">
+                    <label class="col-xs-3 control-label">Default Basemap:</label>
+                    <div class="col-xs-9">
+                        <select class="form-control" name="userBasemap" id="userBasemap" onchange="userPreferenceChange()">
+
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" id="zoomToSelectionForm">
+                    <label class="col-xs-3 control-label">Zoom To Selections:</label>
+                    <div class="col-xs-9">
+                        <select class="form-control" name="zoomToSelection" id="zoomToSelection" onchange="userPreferenceChange()">
+                            <option value="n" selected>No</option>
+                            <option value="y">Yes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" id="showPanelForm">
+                    <label class="col-xs-3 control-label">Show Panels On Load:</label>
+                    <div class="col-xs-9">
+                        <select class="form-control" name="showPanel" id="showPanel" onchange="userPreferenceChange()">
+                            <option value="n">No</option>
+                            <option value="y" selected>Yes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" id="defaultPanelForm">
+                    <label class="col-xs-3 control-label">Default Panel:</label>
+                    <div class="col-xs-9">
+                        <select class="form-control" name="defaultPanel" id="defaultPanel" onchange="userPreferenceChange()">
+                            <option value="basemaps">Basemaps</option>
+                            <option value="layers">Layers</option>
+                            <option value="select">Select Data</option>
+                            <option value="address">Search Address</option>
+                            <option value="settings">Settings</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" id="showScalebarForm">
+                    <label class="col-xs-3 control-label">Show Scalebar:</label>
+                    <div class="col-xs-9">
+                        <select class="form-control" name="showScalebar" id="showScalebar" onchange="userPreferenceChange()">
+                            <option value="n">No</option>
+                            <option value="y" selected>Yes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-xs-3 control-label">Default Selection Color:</label>
+                    <input type="color" class="color" value="#3388ff" name="selectionColor" id="selectionColor"
+                        onchange="userPreferenceChange()">
+                </div>
+                <div class="form-group">
+                    <label class="col-xs-3 control-label">Defualt Analysis Color:</label>
+                    <input type="color" class="color" value="#C70039" name="analysisColor" id="analysisColor" onchange="userPreferenceChange()">
+                </div>
+                <div style="text-align: center;">
+                    <button type="button" class="btn btn-success btn-md" id="mapLocation" name="mapLocation" onclick="userPreferenceChange(this)">Set
+                        Current View As Default Map Location</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addDataModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addDataLabel">Add Data To Map</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="dataTypeForm">
+                        <div class="form-group">
+                            <div class="col-xs-9">
+                                <label for="dataType">Select Type of Data</label>
+                                <select class="form-control" name="dataType">
+                                    <option selected disabled>Select Data Location</option>
+                                    <option value="localFile">Add Files From Your Computer</option>
+                                    <option value="internetFile">Add Files From The Web</option>
+                                    <option value="arcgisService">Add ArcGIS Service</option>
+                                    <!-- <option value="wmsService">Add WMS Service</option> -->
+                                </select>
+                            </div>
+                        </div>
+                        <br>
+                        <button type="button" class="btn btn-success" onclick="fileTypeSelection()">Continue <i class="fa fa-chevron-circle-right"></i></button>
+                    </div>
+                    <div id="localFileForm">
+                        <h6>Local File Path:</h6>
+                        <div class="form-group">
+                            <input type="file" id="inputFile" name="inputFile">
+                        </div>
+                        <br>
+                        <div data-alerts="alerts" data-titles='{"warning": "<em>Warning!</em>", "error": "<em>Oh No!</em>"}'
+                            data-ids="myid"></div>
+                        <br>
+                        <button type="button" class="btn btn-success" onclick="fileSelect()">Load Data <i class="fa fa-chevron-circle-right"></i></button>
+                    </div>
+                    <div id="internetFileForm">
+                        <h6>Add Internet File</h6>
+                        <div class="form-group">
+                            <input class="form-control input-sm" id="file-url" name="file-url" placeholder="Enter URL"
+                                type="text">
+                        </div>
+                        <button type="button" class="btn btn-success" id="addDataSubmit" onclick="addInternetData()">Load
+                            Data <i class="fa fa-chevron-circle-right"></i></button>
+                    </div>
+                    <div id="arcgisServiceForm">
+                        <h6>Add Map URL</h6>
+                        <div class="form-group">
+                            <input class="form-control" id="mapFileUrl" name="mapFileUrl" placeholder="Enter URL" type="text">
+                        </div>
+                        <br>
+                        <div data-alerts="alerts" data-titles="{&quot;warning&quot;: &quot;<em>Warning!</em>&quot;, &quot;error&quot;: &quot;<em>Error!</em>&quot;}"
+                            data-ids="myid"></div>
+                        <br>
+                        <button type="button" class="btn btn-success" id="addMapSubmit" onclick="addMapData()">Load
+                            Map
+                            Service <i class="fa fa-chevron-circle-right"></i></button>
+                    </div>
+                    <div id="excelSheetForm">
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">Select The Sheet That Contains Your Mapping Data</label>
+                            <div class="col-xs-9">
+                                <select class="form-control" name="sheetField" id="sheetField">
+                                </select>
+                            </div>
+                        </div>
+                        <br>
+
+                        <button type="button" class="btn btn-success" onclick="sheetPreview()">Continue</button>
+                    </div>
+                    <div id="excelPreviewForm" style="overflow-x:auto;">
+                        <h4>Does this look like your data?</h4>
+                        <br>
+                        <table class="table table-sm table-striped" id="userPreviewData">
+                            <thead>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <br>
+                        <div data-alerts="alerts" data-titles='{"warning": "<em>Warning!</em>", "error": "<em>Oh No!</em>"}'
+                            data-ids="myid"></div>
+                        <br>
+                        <button type="button" class="btn btn-success" onclick="sheetSelection()">Continue</button>
+                    </div>
+                    <div id="excelJoinOptions">
+                        <div class="form-group">
+                            <label for="inputAddress">Name of Data</label>
+                            <input type="text" class="form-control" name="dataName" id="dataName" placeholder="Enter Name of Data">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">Which Layer Would You Like To Join Your Data To?</label>
+                            <div class="col-xs-9">
+                                <select class="form-control" name="joinLayer" id="joinLayer" onchange="joinLayerSelect()">
+                                    <option selected disabled>Select Layer</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="latLongFields">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label class="col-xs-3 control-label">Latitude Field</label>
+                                        <div class="col-xs-9">
+                                            <select class="form-control" name="latitudeField" id="latitudeField">
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label class="col-xs-3 control-label">Longitude Field</label>
+                                        <div class="col-xs-9">
+                                            <select class="form-control" name="longitudeField" id="longitudeField">
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="fieldJoinData">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label class="col-xs-3 control-label">Matching Field From Your Data</label>
+                                        <div class="col-xs-9">
+                                            <select class="form-control" name="dataKeyField" id="dataKeyField" onchange="userFieldChange()">
+                                                <option class="none" value="none" selected disabled>Select Matching
+                                                    Field</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <h6>Your Data (Preview)</h6>
+                                    <table class="table table-sm" id="userFieldData">
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label class="col-xs-3 control-label">Matching Field From Map Service</label>
+                                        <div class="col-xs-9">
+                                            <select class="form-control" name="mapKeyField" id="mapKeyField" onchange="mapFieldChange()">
+                                                <option class="none" value="none" selected disabled>Select Matching
+                                                    Field</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <h6>Map Data (Preview)</h6>
+                                    <table class="table table-sm" id="mapFieldData">
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div data-alerts="alerts" data-titles='{"warning": "<em>Warning!</em>", "error": "<em>Oh No!</em>"}'
+                                data-ids="myid"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">Default Label</label>
+                            <div class="col-xs-9">
+                                <select class="form-control" name="labelField" id="labelField">
+                                </select>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-success" data-dismiss="modal" onclick="addDataFileToMap()">Add
+                            Data To Map</button>
+                    </div>
+                    <div id="jsonJoinOptions">
+                        <div class="form-group">
+                            <label for="inputAddress">Name of Data</label>
+                            <input type="text" class="form-control" name="jsonDataName" id="jsonDataName" placeholder="Enter Name of Data">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">Default Label</label>
+                            <div class="col-xs-9">
+                                <select class="form-control" name="jsonLabelField" id="jsonLabelField">
+                                </select>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-success" data-dismiss="modal" onclick="addJsonFileToMap()">Add
+                            Data To Map</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="chartTest" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content modal-lg">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Chart Data</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="chartModalBody">
+                    <canvas id="day_canvas"></canvas>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalError" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content modal-lg">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalErrorHeader"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modalErrorBody">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalLoading" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content modal-lg">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLoadingHeader"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modalLoadingBody">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalAlert" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content modal-lg">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalAlertHeader"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modalAlertBody">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <div id="map" class="sidebar-map"></div>
+    <script src="js/leaflet.js"></script>
+    <script src="js/leaflet.contextmenu.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.0/jquery.contextMenu.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.0/jquery.contextMenu.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.0/jquery.ui.position.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/leaflet-sidebar.js"></script>
+    <script src="js/Leaflet.draw.js"></script>
+    <script src="js/esri-leaflet.js"></script>
+    <script src="js/Toolbar.js"></script>
+    <script src="js/Tooltip.js"></script>
+    <script src="js/ext/GeometryUtil.js"></script>
+    <script src="js/ext/LatLngUtil.js"></script>
+    <script src="js/ext/LineUtil.Intersect.js"></script>
+    <script src="js/ext/Polygon.Intersect.js"></script>
+    <script src="js/ext/Polyline.Intersect.js"></script>
+    <script src="js/ext/TouchEvents.js"></script>
+    <script src="js/draw/DrawToolbar.js"></script>
+    <script src="js/draw/handler/Draw.Feature.js"></script>
+    <script src="js/draw/handler/Draw.SimpleShape.js"></script>
+    <script src="js/draw/handler/Draw.Polyline.js"></script>
+    <script src="js/draw/handler/Draw.Circle.js"></script>
+    <script src="js/draw/handler/Draw.Marker.js"></script>
+    <script src="js/draw/handler/Draw.Polygon.js"></script>
+    <script src="js/draw/handler/Draw.Rectangle.js"></script>
+    <script src="js/edit/EditToolbar.js"></script>
+    <script src="js/edit/handler/EditToolbar.Edit.js"></script>
+    <script src="js/edit/handler/EditToolbar.Delete.js"></script>
+    <script src="js/Control.Draw.js"></script>
+    <script src="js/edit/handler/Edit.Poly.js"></script>
+    <script src="js/edit/handler/Edit.SimpleShape.js"></script>
+    <script src="js/edit/handler/Edit.Circle.js"></script>
+    <script src="js/edit/handler/Edit.Rectangle.js"></script>
+    <script src="js/edit/handler/Edit.Marker.js"></script>
+    <script src="js/Control.Draw.js"></script>
+    <script src="js/Leaflet.Draw.Event.js"></script>
+    <script src="js/papaparse.js"></script>
+    <script src="js/jquery.dataTables.min.js"></script>
+    <script src="js/dataTables.bootstrap4.min.js"></script>
+    <script src="js/xlsx.full.min.js"></script>
+    <script src="js/dataTables.buttons.min.js"></script>
+    <script src="js/buttons.flash.min.js"></script>
+    <script src="js/jszip.min.js"></script>
+    <script src="js/vfs_fonts.js"></script>
+    <script src="js/buttons.html5.min.js"></script>
+    <script src="js/buttons.print.min.js"></script>
+    <script src="js/turf.js"></script>
+    <script src="js/geostats.js"></script>
+    <script src="js/chart.js"></script>
+    <script src="js/leaflet-heat.js"></script>
+    <script src="js/nouislider.min.js"></script>
+    <script src="js/nativeColorPicker.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="js/xlsx.full.min.js"></script>
+    <script src="js/jquery.bsAlerts.js"></script>
+    <script src="js/shp.js"></script>
+    <script src="js/leaflet.shpfile.js"></script>
+    <script src="js/legend.js"></script>
+    <script src="js/nontiledlayer.js"></script>
+    <script src="js/addressSearch.js"></script>
+    <script src="js/basemap.js"></script>
+    <script src="js/layerOrder.js"></script>
+    <script src="js/addInternetData.js"></script>
+    <script src="js/colorChange.js"></script>
+    <script src="js/palette.js"></script>
+    <script src="js/colorPalettes.js"></script>
+    <script src="js/addMapService.js"></script>
+    <script src="js/mapLoad.js"></script>
+    <script src="js/labelChange.js"></script>
+    <script src="js/criteriaSelection.js"></script>
+    <script src="js/selectionAppend.js"></script>
+    <script src="js/mapAppend.js"></script>
+    <script src="js/analysis.js"></script>
+    <script src="js/drawSelection.js"></script>
+    <script src="js/layerChange.js"></script>
+    <script src="js/userPreferences.js"></script>
+    <script src="js/downloadData.js"></script>
+
+</body>
+
+</html>
